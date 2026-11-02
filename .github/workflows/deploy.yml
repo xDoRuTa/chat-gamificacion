@@ -47,9 +47,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configurar kubeconfig
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
-          echo "${{ secrets.KUBECONFIG }}" > "$RUNNER_TEMP/kubeconfig"
+          test -n "$KUBECONFIG_DATA" || { echo "Falta el secret KUBECONFIG"; exit 1; }
+          printf '%s\n' "$KUBECONFIG_DATA" > "$RUNNER_TEMP/kubeconfig"
           echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
+          kubectl version
 
       - name: Fijar la imagen de este commit
         run: sed -i "s|ghcr.io/[^/]*/chat-gamificacion:[^ ]*|${{ needs.build.outputs.image }}:${{ github.sha }}|" k8s/*.yaml
