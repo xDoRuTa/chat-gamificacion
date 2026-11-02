@@ -50,10 +50,11 @@ jobs:
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
-          test -n "$KUBECONFIG_DATA" || { echo "Falta el secret KUBECONFIG"; exit 1; }
+          test -n "$KUBECONFIG_DATA" || { echo "::error::Falta el secret KUBECONFIG (Settings > Secrets and variables > Actions)"; exit 1; }
           printf '%s\n' "$KUBECONFIG_DATA" > "$RUNNER_TEMP/kubeconfig"
           echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
-          kubectl version
+          kubectl --kubeconfig "$RUNNER_TEMP/kubeconfig" get resourcequota \
+            || { echo "::error::El secret KUBECONFIG existe pero no permite conectarse al cluster"; exit 1; }
 
       - name: Fijar la imagen de este commit
         run: sed -i "s|ghcr.io/[^/]*/chat-gamificacion:[^ ]*|${{ needs.build.outputs.image }}:${{ github.sha }}|" k8s/*.yaml
