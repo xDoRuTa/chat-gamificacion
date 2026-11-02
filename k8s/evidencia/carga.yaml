@@ -26,7 +26,8 @@ spec:
               END=$(( $(date +%s) + 180 ))
               for worker in $(seq 1 30); do
                 (while [ "$(date +%s)" -lt "$END" ]; do
-                   curl -s -o /dev/null http://gamification-api:8000/api/v1/leaderboard
+                   # Un proceso curl hace 100 requests reutilizando la conexión.
+                   curl -s "http://gamification-api:8000/api/v1/leaderboard?limit=[1-100]" > /dev/null
                  done) &
               done
               wait
@@ -36,7 +37,7 @@ spec:
               cpu: 50m
               memory: 32Mi
             limits:
-              cpu: 300m
+              cpu: 500m
               memory: 64Mi
           securityContext:
             allowPrivilegeEscalation: false

@@ -1,6 +1,6 @@
 # API REST de gamificación: Deployment + Service + Ingress público + autoscaling.
 # Cuota del grupo: limits.cpu 2. Con 4 réplicas: 4x200m + mongo 300m + poller 100m
-# + Job de carga 300m = 1.5 CPU, con margen para un pod extra durante un rollout.
+# + Job de carga 500m = 1.7 CPU, con margen para un pod extra durante un rollout.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

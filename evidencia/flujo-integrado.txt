@@ -1,0 +1,33 @@
+# Flujo integrado contra el chat base desplegado (namespace servicios-base)
+# 2026-11-02T18:27:31Z  kubectl logs job/flujo-integrado
+
+Usuario d12c43be-ec4f-4c45-9fd9-a1b0b4328794 y canal 8fbc2386-b458-4c55-9d83-996c8c0e9549 creados
+Mensaje enviado: Hola a todos
+Mensaje enviado: ¿Alguien entendió sagas?
+Mensaje enviado: Les dejo un resumen
+{
+  "user_id": "d12c43be-ec4f-4c45-9fd9-a1b0b4328794",
+  "xp": 30,
+  "level": 2,
+  "current_level_xp": 25,
+  "next_level_xp": 100,
+  "messages_sent": 3,
+  "reactions_received": 0,
+  "achievements": [
+    {
+      "code": "primer_mensaje",
+      "name": "Primer mensaje",
+      "description": "Envió su primer mensaje en el chat.",
+      "unlocked_at": "2026-11-02T18:27:27.268747+00:00"
+    }
+  ]
+}
+
+🎉 ¡Nivel 2 alcanzado! (30 XP)
+
+Eventos publicados por gamificación para este usuario:
+  gamification.xp.awarded              {'user_id': 'd12c43be-ec4f-4c45-9fd9-a1b0b4328794', 'amount': 10, 'reason': 'message.created', 'total_xp': 10}
+  gamification.achievement.unlocked    {'user_id': 'd12c43be-ec4f-4c45-9fd9-a1b0b4328794', 'code': 'primer_mensaje', 'name': 'Primer mensaje', 'description': 'Envió su primer mensaje en el chat.', 'unlocked_at': '2026-11-02T18:27:27.268747+00:00'}
+  gamification.xp.awarded              {'user_id': 'd12c43be-ec4f-4c45-9fd9-a1b0b4328794', 'amount': 10, 'reason': 'message.created', 'total_xp': 20}
+  gamification.xp.awarded              {'user_id': 'd12c43be-ec4f-4c45-9fd9-a1b0b4328794', 'amount': 10, 'reason': 'message.created', 'total_xp': 30}
+  gamification.level_up                {'user_id': 'd12c43be-ec4f-4c45-9fd9-a1b0b4328794', 'previous_level': 1, 'new_level': 2, 'xp': 30}
