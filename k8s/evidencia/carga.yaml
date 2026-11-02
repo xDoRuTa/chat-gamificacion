@@ -1,0 +1,44 @@
+# Evidencia de escalamiento: genera carga sobre la API durante 3 minutos.
+# En otra terminal:  kubectl get hpa gamification-api -w
+#   kubectl apply -f k8s/evidencia/carga.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: carga
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: carga
+          image: curlimages/curl:8.10.1
+          command:
+            - sh
+            - -c
+            - |
+              END=$(( $(date +%s) + 180 ))
+              for worker in $(seq 1 30); do
+                (while [ "$(date +%s)" -lt "$END" ]; do
+                   curl -s -o /dev/null http://gamification-api:8000/api/v1/leaderboard
+                 done) &
+              done
+              wait
+              echo "Carga terminada"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

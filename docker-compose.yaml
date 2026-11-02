@@ -1,0 +1,109 @@
+services:
+  # ---------- Chat base (código entregado por la cátedra, sin modificar) ----------
+  users:
+    build: ./users
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./users/app:/app/app
+    environment:
+      MONGODB_URL: mongodb://users-mongodb:27017
+    networks:
+      - microsvcs
+
+  channels:
+    build: ./channels
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./channels/app:/app/app
+    environment:
+      MONGODB_URL: mongodb://channels-mongodb:27017
+    networks:
+      - microsvcs
+
+  messages:
+    build: ./messages
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./messages/app:/app/app
+    environment:
+      USERS_URL: http://users:8000
+      CHANNELS_URL: http://channels:8000
+      MONGODB_URL: mongodb://messages-mongodb:27017
+      # Activa la publicación de chat.message.created en el broker.
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    networks:
+      - microsvcs
+
+  users-mongodb:
+    image: mongo:7
+    volumes: [users-data:/data/db]
+    networks: [microsvcs]
+  channels-mongodb:
+    image: mongo:7
+    volumes: [channels-data:/data/db]
+    networks: [microsvcs]
+  messages-mongodb:
+    image: mongo:7
+    volumes: [messages-data:/data/db]
+    networks: [microsvcs]
+
+  # ---------- Message broker ----------
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [microsvcs]
+
+  # ---------- Capacidad vertical: Gamificación ----------
+  gamification:
+    build: ./gamification
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./gamification/app:/app/app
+    environment: &gamification-env
+      MONGODB_URL: mongodb://gamification-mongodb:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      USERS_URL: http://users:8000
+    depends_on:
+      - gamification-mongodb
+    networks: [microsvcs]
+
+  gamification-consumer:
+    build: ./gamification
+    command: ["python", "-m", "app.consumer"]
+    volumes:
+      - ./gamification/app:/app/app
+    environment: *gamification-env
+    depends_on:
+      gamification-mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [microsvcs]
+
+  gamification-mongodb:
+    image: mongo:7
+    volumes: [gamification-data:/data/db]
+    networks: [microsvcs]
+
+volumes:
+  users-data:
+  channels-data:
+  messages-data:
+  gamification-data:
+
+networks:
+  microsvcs:
+    name: microsvcs

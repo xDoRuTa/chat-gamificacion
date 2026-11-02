@@ -1,0 +1,51 @@
+# Lee los eventos de `messages` (servicios-base) y otorga XP.
+# Una sola réplica: Recreate evita que corran dos lectores durante un despliegue.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamification-poller
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gamification-poller
+  template:
+    metadata:
+      labels:
+        app: gamification-poller
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: poller
+          image: ghcr.io/xdoruta/chat-gamificacion:latest
+          imagePullPolicy: Always
+          command: ["python", "-m", "app.poller"]
+          env:
+            - name: MONGODB_URL
+              value: mongodb://gamification-mongodb:27017
+            - name: MESSAGES_URL
+              value: http://messages.servicios-base.svc.cluster.local:8000
+            - name: POLL_INTERVAL_SECONDS
+              value: "3"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          # El poller toca este archivo en cada ciclo; si se congela, se reinicia.
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "test -n \"$(find /tmp/poller-heartbeat -mmin -1)\""]
+            initialDelaySeconds: 30
+            periodSeconds: 20

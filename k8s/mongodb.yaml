@@ -1,0 +1,72 @@
+# Base de datos propia de gamificación (una sola réplica con volumen persistente).
+apiVersion: v1
+kind: Service
+metadata:
+  name: gamification-mongodb
+spec:
+  clusterIP: None
+  selector:
+    app: gamification-mongodb
+  ports:
+    - port: 27017
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gamification-mongodb
+spec:
+  serviceName: gamification-mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gamification-mongodb
+  template:
+    metadata:
+      labels:
+        app: gamification-mongodb
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999    # usuario `mongodb` de la imagen oficial
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mongodb
+          image: mongo:7
+          args: ["--wiredTigerCacheSizeGB", "0.25"]
+          ports:
+            - containerPort: 27017
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

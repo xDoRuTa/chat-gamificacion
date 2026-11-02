@@ -1,0 +1,53 @@
+# Evidencia del flujo integrado: corre demo.py dentro del cluster contra el
+# chat base desplegado (servicios-base) y contra gamificación.
+#   kubectl create configmap demo-flujo --from-file=demo.py
+#   kubectl apply -f k8s/evidencia/flujo-integrado.yaml
+#   kubectl logs -f job/flujo-integrado
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flujo-integrado
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: demo
+          image: python:3.12-slim
+          command: ["python", "/demo/demo.py"]
+          env:
+            - name: USERS_URL
+              value: http://users.servicios-base.svc.cluster.local:8000
+            - name: CHANNELS_URL
+              value: http://channels.servicios-base.svc.cluster.local:8000
+            - name: MESSAGES_URL
+              value: http://messages.servicios-base.svc.cluster.local:8000
+            - name: GAMIFICATION_URL
+              value: http://gamification-api:8000
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: demo
+              mountPath: /demo
+      volumes:
+        - name: demo
+          configMap:
+            name: demo-flujo
