@@ -8,6 +8,10 @@ on:
       - 'k8s/gateway.yaml'
       - '.github/workflows/deploy-gateway.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   test-build-deploy:
     runs-on: ubuntu-latest
@@ -32,12 +36,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Construir y subir imagen Docker
         uses: docker/build-push-action@v4
         with:
           context: ./gateway
           push: true
-          tags: ghcr.io/xdoruta/chat-gamification-gateway:latest
+          tags: ghcr.io/xdoruta/chat-gamificacion-gateway:latest
 
       - name: Configurar Kubeconfig y Desplegar en K8s
         uses: azure/k8s-set-context@v3
