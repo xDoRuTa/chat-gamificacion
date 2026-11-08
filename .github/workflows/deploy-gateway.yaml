@@ -1,0 +1,52 @@
+name: Deploy Gateway GraphQL
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gateway/**'
+      - 'k8s/gateway.yaml'
+      - '.github/workflows/deploy-gateway.yaml'
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          cd gateway
+          npm ci
+          node --test test/gateway.test.js
+
+      - name: Iniciar sesión en GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y subir imagen Docker
+        uses: docker/build-push-action@v4
+        with:
+          context: ./gateway
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/chat-gamificacion-gateway:latest
+
+      - name: Configurar Kubeconfig y Desplegar en K8s
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Aplicar manifiestos de Kubernetes
+        run: |
+          kubectl apply -f k8s/gateway.yaml
+          kubectl rollout status deployment/gamification-gateway -n grupo-gamificacion --timeout=60s

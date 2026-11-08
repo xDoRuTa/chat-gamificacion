@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Gateway + Gamificación</title>
+  <style>
+    body { font-family: sans-serif; background: #121212; color: #e0e0e0; margin: 20px; }
+    .card { background: #1e1e1e; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333; }
+    .badge { background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+    .xp { color: #10b981; font-weight: bold; }
+    h1 { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <h1>Chat Base con Gamificación (Gateway GraphQL)</h1>
+  <div id="app">Cargando datos desde /graphql...</div>
+
+  <script>
+    async function loadChat() {
+      const query = `
+        query {
+          channels {
+            id
+            name
+            messages(limit: 10) {
+              id
+              content
+              author {
+                displayName
+                gamification {
+                  level
+                  xp
+                  achievements { name }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const { data } = await res.json();
+        
+        const container = document.getElementById('app');
+        container.innerHTML = data.channels.map(ch => `
+          <div class="card">
+            <h2># ${ch.name}</h2>
+            ${ch.messages.map(m => `
+              <p>
+                <strong>${m.author ? m.author.displayName : 'Anónimo'}</strong> 
+                ${m.author?.gamification ? `<span class="badge">Nivel ${m.author.gamification.level}</span> <span class="xp">(${m.author.gamification.xp} XP)</span>` : ''}: 
+                ${m.content}
+              </p>
+            `).join('')}
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('app').innerHTML = `<p style="color:red">Error al conectar con GraphQL: ${err.message}</p>`;
+      }
+    }
+    loadChat();
+  </script>
+</body>
+</html>
