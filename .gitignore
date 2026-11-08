@@ -4,3 +4,5 @@ __pycache__/
 .env
 *.kubeconfig
 kubeconfig
+node_modules/
+gateway/node_modules/
