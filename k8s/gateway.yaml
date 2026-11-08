@@ -34,22 +34,15 @@ spec:
           envFrom:
             - configMapRef:
                 name: gateway-config
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "250m"
-              memory: "128Mi"
           readinessProbe:
             httpGet:
-              path: /graphql?query={__typename}
+              path: /
               port: 4000
             initialDelaySeconds: 5
             periodSeconds: 5
           livenessProbe:
             httpGet:
-              path: /graphql?query={__typename}
+              path: /
               port: 4000
             initialDelaySeconds: 10
             periodSeconds: 10
@@ -73,6 +66,7 @@ metadata:
   name: gateway-ingress
   namespace: grupo-gamificacion
 spec:
+  ingressClassName: traefik
   rules:
     - host: chat-gamificacion.134.199.176.3.nip.io
       http:
