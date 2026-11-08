@@ -32,13 +32,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Construir y subir imagen Docker
         uses: docker/build-push-action@v4
         with:
           context: ./gateway
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/chat-gamificacion-gateway:latest
+          tags: ghcr.io/xdoruta/chat-gamification-gateway:latest
 
       - name: Configurar Kubeconfig y Desplegar en K8s
         uses: azure/k8s-set-context@v3
