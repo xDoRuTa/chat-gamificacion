@@ -1,4 +1,4 @@
-import '../polyfill.js';
+import './polyfill.js';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
