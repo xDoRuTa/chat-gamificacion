@@ -8,6 +8,8 @@ data:
   CHANNELS_URL: "http://channel-service.servicios-base.svc.cluster.local:8000"
   MESSAGES_URL: "http://message-service.servicios-base.svc.cluster.local:8000"
   GAMIFICATION_URL: "http://gamification-api.grupo-gamificacion.svc.cluster.local:8000"
+  REACTIONS_URL: "http://reaction-service.grupo-reacciones"
+  MEDIA_URL: "http://media.grupo-archivos-adjuntos"
   PORT: "4000"
 ---
 apiVersion: apps/v1

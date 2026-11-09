@@ -2,6 +2,8 @@ const BASE_USERS_URL = process.env.USERS_URL || 'http://user-service.servicios-b
 const BASE_CHANNELS_URL = process.env.CHANNELS_URL || 'http://channel-service.servicios-base.svc.cluster.local:8000';
 const BASE_MESSAGES_URL = process.env.MESSAGES_URL || 'http://message-service.servicios-base.svc.cluster.local:8000';
 const GAMIFICATION_URL = process.env.GAMIFICATION_URL || 'http://gamification-api.grupo-gamificacion.svc.cluster.local:8000';
+const REACTIONS_URL = process.env.REACTIONS_URL || 'http://reaction-service.grupo-reacciones';
+const MEDIA_URL = process.env.MEDIA_URL || 'http://media.grupo-archivos-adjuntos';
 
 async function fetchJSON(url, options = {}) {
   const controller = new AbortController();
@@ -34,4 +36,13 @@ export async function getUserById(userId) {
 
 export async function getGamificationProfile(userId) {
   return await fetchJSON(`${GAMIFICATION_URL}/api/v1/users/${userId}/profile`);
+}
+
+// NUEVAS FUNCIONES PARA REACCIONES Y MEDIA
+export async function getReactionsByMessage(messageId) {
+  return await fetchJSON(`${REACTIONS_URL}/api/v1/messages/${messageId}/reactions`);
+}
+
+export async function getAttachmentsByMessage(messageId) {
+  return await fetchJSON(`${MEDIA_URL}/api/v1/messages/${messageId}/attachments`);
 }

@@ -1,5 +1,10 @@
 import { createSchema } from 'graphql-yoga';
-import { getChannels, getChannelMessages } from './upstream.js';
+import { 
+  getChannels, 
+  getChannelMessages, 
+  getReactionsByMessage, 
+  getAttachmentsByMessage 
+} from './upstream.js';
 
 export const schema = createSchema({
   typeDefs: /* GraphQL */ `
@@ -24,12 +29,25 @@ export const schema = createSchema({
       gamification: GamificationProfile
     }
 
+    type Reaction {
+      emoji: String
+      count: Int
+    }
+
+    type Attachment {
+      id: ID
+      filename: String
+      url: String
+    }
+
     type Message {
       id: ID!
       channel_id: ID!
       content: String!
       created_at: String
       author: User
+      reactions: [Reaction]
+      attachments: [Attachment]
     }
 
     type Channel {
@@ -72,6 +90,12 @@ export const schema = createSchema({
       author: async (message, _, { loaders }) => {
         if (!message.user_id) return null;
         return await loaders.userLoader.load(message.user_id);
+      },
+      reactions: async (message) => {
+        return await getReactionsByMessage(message.id);
+      },
+      attachments: async (message) => {
+        return await getAttachmentsByMessage(message.id);
       }
     },
 
