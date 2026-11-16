@@ -9,6 +9,7 @@ COMO LEVANTARLO
   Swagger:   http://localhost:8004/docs
   RabbitMQ:  http://localhost:15672  (guest / guest)
   Tests:     docker compose exec gamification python -m unittest discover -s tests
+  Tests ultima entrega:   docker compose exec gamification python -m unittest discover -s tests -v
 
 SERVICIOS
   users / channels / messages   8001-8003   Chat base
