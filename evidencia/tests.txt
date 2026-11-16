@@ -1,0 +1,42 @@
+test_consumer_sends_malformed_chat_event_to_dead_letter_queue (test_contract.ChatBaseContractTests.test_consumer_sends_malformed_chat_event_to_dead_letter_queue)
+Si el chat base envía un payload que rompe el contrato, va a DLQ sin requeue. ... Evento inválido enviado a la cola de muertos: 2 validation errors for MessageCreatedData
+channel_id
+  Field required [type=missing, input_value={'id': 'msg-broken'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+author_id
+  Field required [type=missing, input_value={'id': 'msg-broken'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.14/v/missing
+ok
+test_contract_message_created_from_messages_service (test_contract.ChatBaseContractTests.test_contract_message_created_from_messages_service)
+Valida el payload exacto publicado por `messages` en `chat.message.created`. ... ok
+test_contract_reaction_added_and_self_reaction_rule (test_contract.ChatBaseContractTests.test_contract_reaction_added_and_self_reaction_rule)
+Valida el contrato de `chat.reaction.added` y que autoreacciones no den XP. ... ok
+test_contract_users_service_http_integration (test_contract.ChatBaseContractTests.test_contract_users_service_http_integration)
+Valida el contrato HTTP GET /api/v1/users/{id} con el servicio `users`. ... ok
+test_achievements_post_not_allowed_returns_405 (test_endpoints.EndpointTests.test_achievements_post_not_allowed_returns_405) ... ok
+test_get_leaderboard_limit_exceeded_returns_422 (test_endpoints.EndpointTests.test_get_leaderboard_limit_exceeded_returns_422) ... ok
+test_get_leaderboard_sorted_by_xp_desc (test_endpoints.EndpointTests.test_get_leaderboard_sorted_by_xp_desc) ... ok
+test_get_profile_existing_user_with_activity (test_endpoints.EndpointTests.test_get_profile_existing_user_with_activity) ... ok
+test_get_profile_returns_404_when_user_does_not_exist (test_endpoints.EndpointTests.test_get_profile_returns_404_when_user_does_not_exist) ... ok
+test_get_xp_history_invalid_limit_returns_422 (test_endpoints.EndpointTests.test_get_xp_history_invalid_limit_returns_422) ... ok
+test_get_xp_history_returns_transactions (test_endpoints.EndpointTests.test_get_xp_history_returns_transactions) ... ok
+test_health_method_not_allowed_error (test_endpoints.EndpointTests.test_health_method_not_allowed_error) ... ok
+test_health_ok (test_endpoints.EndpointTests.test_health_ok) ... ok
+test_list_achievements_returns_catalog (test_endpoints.EndpointTests.test_list_achievements_returns_catalog) ... ok
+test_list_events_filters_by_type (test_endpoints.EndpointTests.test_list_events_filters_by_type) ... ok
+test_list_events_invalid_event_type_returns_422 (test_endpoints.EndpointTests.test_list_events_invalid_event_type_returns_422) ... ok
+test_ready_ok_when_db_responds (test_endpoints.EndpointTests.test_ready_ok_when_db_responds) ... ok
+test_ready_returns_503_when_db_unavailable (test_endpoints.EndpointTests.test_ready_returns_503_when_db_unavailable) ... ok
+test_end_to_end_chat_messages_award_xp_and_level_up (test_integration_compose.DockerComposeIntegrationTests.test_end_to_end_chat_messages_award_xp_and_level_up)
+Flujo completo: crear usuario/canal, enviar 3 mensajes y verificar XP/nivel/logros. ... ok
+test_first_message_unlocks (test_rules.AchievementTests.test_first_message_unlocks) ... ok
+test_owned_achievements_are_not_repeated (test_rules.AchievementTests.test_owned_achievements_are_not_repeated) ... ok
+test_reaction_and_level_achievements (test_rules.AchievementTests.test_reaction_and_level_achievements) ... ok
+test_level_thresholds (test_rules.LevelTests.test_level_thresholds) ... ok
+test_three_messages_reach_level_two (test_rules.LevelTests.test_three_messages_reach_level_two) ... ok
+test_xp_for_level_matches_level_for_xp (test_rules.LevelTests.test_xp_for_level_matches_level_for_xp) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.617s
+
+OK
